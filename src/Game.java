@@ -2,13 +2,16 @@ import java.util.Scanner;
 
 public class Game {
     public static Scanner keyboard;
+    protected static int maxRow, maxCol;
 
     public static void main(String[] args) {
         keyboard = new Scanner(System.in);
 
+        // Display Instructions
         instructions();
 
-        Life configuration = new Life();
+        // CREATING AN OBJECT OF LIFE CLASS AND CALLING THE FUNCTIONS.
+        Life configuration = new Life(maxRow, maxCol);
         configuration.initialize();
         configuration.print();
 
@@ -23,20 +26,35 @@ public class Game {
     }
 
     private static void instructions() {
-        System.out.println("Welcome to Conway's Game of Life!");
-        System.out.println(String.format("This game uses a grid size of %d by %d \n"
-                + "in which each cell can be occupied by an organism or not.", Life.MAX_ROW, Life.MAX_COL));
-        System.out.println("The occupied cells change from generation to generation \n"
-                + "according to the number of neighbouring cells which are alive.");
+        System.out.println("WELCOME TO CONWAY'S GAME OF LIFE!");
+        System.out.print("Enter the grid dimension for the game (Format: rows cols): ");
+
+        maxRow = 0;
+        maxCol = 0;
+        do {
+            String grid = keyboard.nextLine();
+            String[] dimension = grid.split(" ", 0);
+
+            if (dimension.length != 2) {
+                System.out.println("Invalid dimension. Please enter again.");
+            } else {
+                maxRow = Integer.parseInt(dimension[0]);
+                maxCol = Integer.parseInt(dimension[1]);
+            }
+
+        } while (maxRow <= 0 && maxCol <= 0);
+
+        System.out.printf("This game uses a grid size of %d by %d in which each cell can be occupied by an organism or not.%n", maxRow, maxCol);
+        System.out.println("The occupied cells change from generation to generation according to the number of neighbouring cells which are alive.");
     }
 
     private static boolean userSaysYes() {
-        String input = "";
+        String input;
 
         System.out.print("(y, n)? ");
         input = keyboard.nextLine();
 
-        while (!input.toLowerCase().equals("y") && !input.toLowerCase().equals("n")) {
+        while (!input.equalsIgnoreCase("y") && !input.equalsIgnoreCase("n")) {
             System.out.println();
             System.out.println("Respond with either y or n");
             System.out.print("(y, n)? ");
@@ -45,7 +63,7 @@ public class Game {
 
         System.out.println();
 
-        return input.toLowerCase().equals("y");
+        return input.equalsIgnoreCase("y");
     }
 
 }
