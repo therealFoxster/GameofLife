@@ -1,8 +1,179 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 
 public class Life {
-    protected static final int MAX_ROW = 20, MAX_COL = 60; // Grid dimensions
-    private int grid[][] = new int[MAX_ROW + 2][MAX_COL + 2];
+    private final int[][] grid;
+    protected int maxRow;
+    protected int maxCol;
 
+    public Life(int maxRow, int maxCol) {
+        this.maxRow = maxRow;
+        this.maxCol = maxCol;
+        this.grid = new int[maxRow + 2][maxCol + 2];
+    }
+
+    public void initialize() {
+        int row, col;
+
+        // Initializing Grids with Blank Cell.
+        for (row = 0; row <= maxRow; row++) {
+            for (col = 0; col <= maxCol; col++) {
+                grid[row][col] = 0;
+            }
+        }
+
+        // Asking the user if they want to enter the values or read from a file.
+        System.out.print("\nDo you want to: \n" +
+                "1. Input the values in the console.\n" +
+                "2. Read from a CSV File.\n" +
+                "Enter your choice: ");
+
+        int choice = Integer.parseInt(Game.keyboard.nextLine());
+        switch (choice) {
+            case 1:
+                inputValues();
+                break;
+            case 2:
+                readFromCSV();
+                break;
+            default:
+                System.out.print("Invalid Entry. Please enter your choice again: ");
+                break;
+        }
+    }
+
+    public void inputValues() {
+        int row = 0, col = 0;
+
+        System.out.println("\nList the coordinates for living cells. (Format: row col)");
+        System.out.println("Terminate the list with the special pair \"-1 -1\".");
+
+        do {
+            String coordinates = Game.keyboard.nextLine();
+            String[] cells = coordinates.split(" ", 0);
+
+            if (cells.length != 2) {
+                System.out.println("Invalid coordinates. Please try again.");
+            } else {
+                row = Integer.parseInt(cells[0]);
+                col = Integer.parseInt(cells[1]);
+                insertValuesToGrid(row, col);
+            }
+
+        } while (row != -1 && col != -1);
+
+    }
+
+    private void readFromCSV() {
+        String filePath;
+        String delimiter = ",";
+        String coordinates;
+        int row, col;
+
+        try {
+            // Getting the path from the user.
+            System.out.print("\nEnter the path for the CSV file: ");
+            filePath = Game.keyboard.nextLine().replace("\\", File.separator);
+
+            // Parsing the CSV file.
+            BufferedReader reader = new BufferedReader(new FileReader(filePath));
+
+            // Skip the header if it exists.
+            if (!reader.readLine().equals("row,col")) {
+                while ((coordinates = reader.readLine()) != null) {
+                    String[] cells = coordinates.split(delimiter, 0);
+                    row = Integer.parseInt(cells[0]);
+                    col = Integer.parseInt(cells[1]);
+                    insertValuesToGrid(row, col);
+                }
+            }
+        } catch (FileNotFoundException fnf) {
+            System.out.println("EXCEPTION: Check if the file path is correct.");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
+    private void insertValuesToGrid(int row, int col) {
+        if (row > 1 && row <= maxRow) {
+            if (col > 1 && col <= maxCol) {
+                grid[row][col] = 1;
+            } else {
+                System.out.printf("Column %d is out of range.%n", col);
+            }
+        } else if (row != -1) {
+            System.out.printf("Row %d is out of range.%n", row);
+        }
+    }
+
+    public void print() {
+        System.out.println("\nThe current life configuration is:");
+
+        for (int row = 0; row <= maxRow; row++) { // Traversing each row
+            for (int col = 0; col <= maxCol; col++) { // Traversing each column of each row (in other words, each cell)
+                // Creating a number line for the first row.
+                if (row == 0) {
+                    if (col == 0) {
+                        System.out.print("   ");
+                    } else {
+                        System.out.print(col);
+                        if (col < 10) {
+                            System.out.print("  ");
+                        } else {
+                            System.out.print(" ");
+                        }
+                    }
+                    // Creating a number line for the first column.
+                } else if (col == 0) {
+                    System.out.print(row);
+                    if (row < 10) {
+                        System.out.print("  ");
+                    } else {
+                        System.out.print(" ");
+                    }
+                } else {
+                    if (grid[row][col] == 1) {
+                        System.out.print("#  ");
+                    } else {
+                        System.out.print(".  ");
+                    }
+                }
+            }
+            System.out.println(); // Moves to next row
+        }
+        System.out.println();
+    }
+
+    public void update() {
+        int row, col;
+        int[][] newGrid = new int[maxRow + 2][maxCol + 2];
+
+        for (row = 1; row <= maxRow; row++) {
+            for (col = 1; col <= maxCol; col++) {
+                switch (neighbourCount(row, col)) {
+                    case 2:
+                        newGrid[row][col] = grid[row][col];
+                        break;
+                    case 3:
+                        newGrid[row][col] = 1;
+                        break;
+                    default:
+                        newGrid[row][col] = 0;
+                        break;
+                }
+            }
+        }
+
+        // Copying newGrid to grid
+        for (row = 1; row <= maxRow; row++) {
+            for (col = 1; col <= maxCol; col++) {
+                grid[row][col] = newGrid[row][col];
+            }
+        }
+    }
 
     private int neighbourCount(int rowIn, int colIn) {
         int row, col;
@@ -19,82 +190,4 @@ public class Life {
         return count;
     }
 
-    public void initialize() {
-        int row = 0, col = 0;
-
-        // Initializing grid with blank cells
-        for (row = 0; row <= MAX_ROW + 1; row++) {
-            for (col = 0; col <= MAX_COL + 1; col++) {
-                grid[row][col] = 0;
-            }
-        }
-
-        System.out.println("List the coordinates for living cells.");
-        System.out.println("Terminate the list with the special pair \"-1 -1\".");
-
-        do {
-            String input = Game.keyboard.nextLine();
-            String[] coordinatesStr = input.split(" ", 0);
-
-            if (coordinatesStr.length != 2) {
-                System.out.println("Invalid coordinates. Please try again.");
-            }
-            else {
-                row = Integer.parseInt(coordinatesStr[0]);
-                col = Integer.parseInt(coordinatesStr[1]);
-
-                if (row > 1 && row <= MAX_ROW) {
-                    if (col > 1 && col <= MAX_COL) {
-                        grid[row][col] = 1;
-                    } else {
-                        System.out.println(String.format("Column %d is out of range.", col));
-                    }
-                } else if (row != -1) {
-                    System.out.println(String.format("Row %d is out of range.", row));
-                }
-            }
-        } while (row != -1 && col != -1);
-
-    }
-
-    public void print() {
-        System.out.println("\nThe current life configuration is:");
-
-        for (int row = 0; row <= MAX_ROW; row++) { // Traversing each row
-            for (int col = 0; col <= MAX_COL; col++) { // Traversing each column of each row (in other words, each cell)
-                if (grid[row][col] == 1) {
-                    System.out.print("*");
-                } else {
-                    System.out.print(" ");
-                }
-            }
-            System.out.println(); // Moves to next row
-        }
-        System.out.println();
-    }
-
-    public void update() {
-        int row, col;
-        int newGrid[][] = new int[MAX_ROW + 2][MAX_COL + 2];
-
-        for (row = 1; row <= MAX_ROW; row++) {
-            for (col = 1; col <= MAX_COL; col++) {
-                switch (neighbourCount(row, col)) {
-                    case 2: newGrid[row][col] = grid[row][col];
-                        break;
-                    case 3: newGrid[row][col] = 1;
-                        break;
-                    default: newGrid[row][col] = 0;
-                        break;
-                }
-            }
-        }
-
-        // Copying newGrid to grid
-        for (row = 1; row <= MAX_ROW; row++) {
-            for (col = 1; col <= MAX_COL; col++) {
-                grid[row][col] = newGrid[row][col];
-            }
-        }
-    }
 }
