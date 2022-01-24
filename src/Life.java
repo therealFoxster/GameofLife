@@ -24,28 +24,38 @@ public class Life {
             }
         }
 
-        // Asking the user if they want to enter the values or read from a file.
-        System.out.print("\nDo you want to: \n" +
-                "1. Input the values in the console.\n" +
-                "2. Read from a CSV File.\n" +
-                "3. Generate sample grid with random values\n" +
-                "Enter your choice: ");
+        boolean invalidChoice = true;
+        while (invalidChoice) {
+            // Asking the user if they want to enter the values or read from a file.
+            System.out.print("\nDo you want to: \n" +
+                    "1. Input the values in the console.\n" +
+                    "2. Read from a CSV File.\n" +
+                    "3. Generate sample grid with random values\n" +
+                    "Enter your choice: ");
 
-        int choice = Integer.parseInt(Game.keyboard.nextLine());
-        switch (choice) {
-            case 1:
-                inputValues();
-                break;
-            case 2:
-                readFromCSV();
-                break;
-            case 3:
-                generateRandom();
-                break;
-            default:
-                System.out.print("Invalid Entry. Please enter your choice again: ");
-                break;
+            try {
+                int choice = Integer.parseInt(Game.keyboard.nextLine());
+                invalidChoice = false;
+                switch (choice) {
+                    case 1:
+                        inputValues();
+                        break;
+                    case 2:
+                        readFromCSV();
+                        break;
+                    case 3:
+                        generateRandom();
+                        break;
+                    default:
+                        Game.invalidInput("choice");
+                        invalidChoice = true;
+                        break;
+                }
+            } catch (Exception e) {
+                Game.invalidInput("choice");
+            }
         }
+
     }
 
     public void inputValues() {
@@ -59,7 +69,7 @@ public class Life {
             String[] cells = coordinates.split(" ", 0);
 
             if (cells.length != 2) {
-                System.out.println("Invalid coordinates. Please try again.");
+                Game.invalidInput("coordinates");
             } else {
                 row = Integer.parseInt(cells[0]);
                 col = Integer.parseInt(cells[1]);
@@ -76,27 +86,38 @@ public class Life {
         String coordinates;
         int row, col;
 
-        try {
-            // Getting the path from the user.
-            System.out.print("\nEnter the path for the CSV file: ");
-            filePath = Game.keyboard.nextLine().replace("\\", File.separator);
+        boolean invalidPath = true;
+        while (invalidPath) {
+            try {
+                // Getting the path from the user.
+                System.out.print("\nEnter the path for the CSV file (leave empty for default file path (file/coords.csv)): ");
+                filePath = Game.keyboard.nextLine().replace("\\", File.separator);
 
-            // Parsing the CSV file.
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
-
-            // Skip the header if it exists.
-            if (!reader.readLine().equals("row,col")) {
-                while ((coordinates = reader.readLine()) != null) {
-                    String[] cells = coordinates.split(delimiter, 0);
-                    row = Integer.parseInt(cells[0]);
-                    col = Integer.parseInt(cells[1]);
-                    insertValuesToGrid(row, col);
+                if (filePath.isEmpty()) {
+                    filePath = "file/coords.csv".replace("\\", File.separator);
                 }
+
+                // Parsing the CSV file.
+                BufferedReader reader = new BufferedReader(new FileReader(filePath));
+
+                // Skip the header if it exists.
+                if (!reader.readLine().equals("row,col")) {
+                    while ((coordinates = reader.readLine()) != null) {
+                        String[] cells = coordinates.split(delimiter, 0);
+                        row = Integer.parseInt(cells[0]);
+                        col = Integer.parseInt(cells[1]);
+                        insertValuesToGrid(row, col);
+                    }
+                }
+
+                invalidPath = false;
+            } catch (FileNotFoundException fnf) {
+//            System.out.println("EXCEPTION: Check if the file path is correct.");
+                Game.invalidInput("file path");
+            } catch (Exception ex) {
+//            ex.printStackTrace();
+                Game.invalidInput("file path");
             }
-        } catch (FileNotFoundException fnf) {
-            System.out.println("EXCEPTION: Check if the file path is correct.");
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
 
     }
