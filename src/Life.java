@@ -28,6 +28,7 @@ public class Life {
         System.out.print("\nDo you want to: \n" +
                 "1. Input the values in the console.\n" +
                 "2. Read from a CSV File.\n" +
+                "3. Generate sample grid with random values\n" +
                 "Enter your choice: ");
 
         int choice = Integer.parseInt(Game.keyboard.nextLine());
@@ -37,6 +38,9 @@ public class Life {
                 break;
             case 2:
                 readFromCSV();
+                break;
+            case 3:
+                generateRandom();
                 break;
             default:
                 System.out.print("Invalid Entry. Please enter your choice again: ");
@@ -93,6 +97,20 @@ public class Life {
             System.out.println("EXCEPTION: Check if the file path is correct.");
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+
+    }
+
+    private void generateRandom() {
+        int gridSize = maxRow * maxCol;
+        int coordinateCount = (int) Math.floor(Math.random() * (gridSize) + 1);
+
+        for (int coordinates = 0; coordinates < coordinateCount; coordinates++) {
+            int row = (int) Math.floor(Math.random() * (maxRow) + 1);
+            int col = (int) Math.floor(Math.random() * (maxCol) + 1);
+            if ((row != 1 && col != 1)) {
+                insertValuesToGrid(row, col);
+            }
         }
 
     }
