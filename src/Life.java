@@ -111,13 +111,11 @@ public class Life {
                 }
 
                 invalidPath = false;
-            } catch (FileNotFoundException fnf) {
+            } catch (Exception fnf) {
 //            System.out.println("EXCEPTION: Check if the file path is correct.");
                 Game.invalidInput("file path");
-            } catch (Exception ex) {
-//            ex.printStackTrace();
-                Game.invalidInput("file path");
-            }
+            }//            ex.printStackTrace();
+
         }
 
     }

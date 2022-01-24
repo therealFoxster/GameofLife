@@ -10,7 +10,7 @@ public class Game {
         // Display Instructions
         instructions();
 
-        // CREATING AN OBJECT OF LIFE CLASS AND CALLING THE FUNCTIONS.
+        // Creating an object of Life class and calling its functions.
         Life configuration = new Life(maxRow, maxCol);
         configuration.initialize();
         configuration.print();
@@ -29,7 +29,7 @@ public class Game {
         System.out.println("WELCOME TO CONWAY'S GAME OF LIFE!");
         boolean invalidDimensions = true;
         while (invalidDimensions) {
-            System.out.print("Enter the grid dimensions (Format: \"rows cols\"; leave empty for default dimensions (60 20)): ");
+            System.out.print("Enter the grid dimensions (Format: \"rows cols\"; leave empty for default dimensions (20 60)): ");
 
             maxRow = 0;
             maxCol = 0;
@@ -38,7 +38,7 @@ public class Game {
             String[] dimensions = input.split(" ", 0);
 
             if (input.isEmpty()) {
-                maxRow = 60; maxCol = 20;
+                maxRow = 20; maxCol = 60;
                 invalidDimensions = false;
             } else if (dimensions.length != 2) {
                 invalidInput("dimensions");
